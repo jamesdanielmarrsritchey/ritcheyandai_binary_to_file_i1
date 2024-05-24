@@ -1,0 +1,304 @@
+jamesdanielmarrsritchey: ```#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+bool processFile(const std::string& source_file, const std::string& destination_file, const std::string& delimiter) {
+    std::ifstream infile(source_file);
+    std::ofstream outfile(destination_file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        size_t pos = 0;
+        std::string token;
+        while ((pos = line.find(delimiter)) != std::string::npos) {
+            token = line.substr(0, pos);
+            outfile << static_cast<char>(std::stoi(token));
+            line.erase(0, pos + delimiter.length());
+        }
+        outfile << static_cast<char>(std::stoi(line));
+    }
+    outfile.close();
+    infile.close();
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_file = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_file = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    } else if (delimiter == "\\n") {
+        delimiter = "\n"; // treat \n as line ending
+    } else if (delimiter == "\\t") {
+        delimiter = "\t"; // treat \t as tab
+    }
+
+    if (!source_file.empty() && !destination_file.empty()) {
+        bool success = processFile(source_file, destination_file, delimiter);
+        return success ? 0 : 1;
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+        return 1;
+    }
+}
+
+
+GitHub Copilot: This C++ program reads a source file, splits each line into tokens based on a specified delimiter, converts each token into an integer, and then writes the corresponding ASCII character to a destination file.
+
+Here's a breakdown of the code:
+
+1. `getCmdOption`: This function scans the command-line arguments for a specified option and returns the argument that follows it.
+
+2. `processFile`: This function reads from a source file, tokenizes each line based on a specified delimiter, converts each token to an integer, casts the integer to a char (ASCII), and writes the char to a destination file.
+
+3. `main`: This function processes command-line arguments to get the source file, destination file, and delimiter. If no delimiter is specified, it defaults to a space. If "\n" or "\t" is specified, it treats them as a newline and tab, respectively. If both a source file and destination file are specified, it calls `processFile` to process the file. If the file processing is successful, it returns 0; otherwise, it returns 1. If no source file or destination file is specified, it prints an error message and returns 1.
+
+This program is useful for converting a file of ASCII values into a text file. For example, if the source file contains "65 66 67" and the delimiter is a space, the destination file will contain "ABC".
+
+jamesdanielmarrsritchey: Instead of converting from decimal representations, convert from binary representations.
+
+GitHub Copilot: To convert from binary representations, you need to replace the `std::stoi(token)` function with `std::stoi(token, nullptr, 2)`. The third argument to `std::stoi` specifies the base of the number in the string. In this case, 2 is for binary.
+
+Here's the updated `processFile` function:
+
+```cpp
+bool processFile(const std::string& source_file, const std::string& destination_file, const std::string& delimiter) {
+    std::ifstream infile(source_file);
+    std::ofstream outfile(destination_file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        size_t pos = 0;
+        std::string token;
+        while ((pos = line.find(delimiter)) != std::string::npos) {
+            token = line.substr(0, pos);
+            outfile << static_cast<char>(std::stoi(token, nullptr, 2));
+            line.erase(0, pos + delimiter.length());
+        }
+        outfile << static_cast<char>(std::stoi(line, nullptr, 2));
+    }
+    outfile.close();
+    infile.close();
+    return true;
+}
+```
+
+Now, if the source file contains "1000001 1000010 1000011" and the delimiter is a space, the destination file will contain "ABC".
+
+jamesdanielmarrsritchey: Add this suggestion to the full program code.
+
+GitHub Copilot: Here's the full program with the updated `processFile` function:
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+bool processFile(const std::string& source_file, const std::string& destination_file, const std::string& delimiter) {
+    std::ifstream infile(source_file);
+    std::ofstream outfile(destination_file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        size_t pos = 0;
+        std::string token;
+        while ((pos = line.find(delimiter)) != std::string::npos) {
+            token = line.substr(0, pos);
+            outfile << static_cast<char>(std::stoi(token, nullptr, 2));
+            line.erase(0, pos + delimiter.length());
+        }
+        outfile << static_cast<char>(std::stoi(line, nullptr, 2));
+    }
+    outfile.close();
+    infile.close();
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_file = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_file = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    } else if (delimiter == "\\n") {
+        delimiter = "\n"; // treat \n as line ending
+    } else if (delimiter == "\\t") {
+        delimiter = "\t"; // treat \t as tab
+    }
+
+    if (!source_file.empty() && !destination_file.empty()) {
+        bool success = processFile(source_file, destination_file, delimiter);
+        return success ? 0 : 1;
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+        return 1;
+    }
+}
+```
+
+Now, the program will convert binary representations to ASCII characters.
+
+jamesdanielmarrsritchey: The default delimiter should be nothing.
+
+GitHub Copilot: To make the default delimiter an empty string, you can simply remove the line that sets the default delimiter to a space. Here's the updated code:
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+bool processFile(const std::string& source_file, const std::string& destination_file, const std::string& delimiter) {
+    std::ifstream infile(source_file);
+    std::ofstream outfile(destination_file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        size_t pos = 0;
+        std::string token;
+        while ((pos = line.find(delimiter)) != std::string::npos) {
+            token = line.substr(0, pos);
+            outfile << static_cast<char>(std::stoi(token, nullptr, 2));
+            line.erase(0, pos + delimiter.length());
+        }
+        outfile << static_cast<char>(std::stoi(line, nullptr, 2));
+    }
+    outfile.close();
+    infile.close();
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_file = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_file = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter == "\\n") {
+        delimiter = "\n"; // treat \n as line ending
+    } else if (delimiter == "\\t") {
+        delimiter = "\t"; // treat \t as tab
+    }
+
+    if (!source_file.empty() && !destination_file.empty()) {
+        bool success = processFile(source_file, destination_file, delimiter);
+        return success ? 0 : 1;
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+        return 1;
+    }
+}
+```
+
+Now, if no delimiter is specified, the program will treat the entire line as a single binary number.
+
+jamesdanielmarrsritchey: If no delimiter is specified, then every 8 characters represents 1 byte in binary.
+
+GitHub Copilot: To handle the case where no delimiter is specified and every 8 characters represent 1 byte in binary, you need to modify the `processFile` function to read the line in chunks of 8 characters when the delimiter is empty. Here's the updated code:
+
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+bool processFile(const std::string& source_file, const std::string& destination_file, const std::string& delimiter) {
+    std::ifstream infile(source_file);
+    std::ofstream outfile(destination_file);
+    std::string line;
+    while (std::getline(infile, line)) {
+        if (delimiter.empty()) {
+            for (size_t i = 0; i < line.size(); i += 8) {
+                std::string byte = line.substr(i, 8);
+                outfile << static_cast<char>(std::stoi(byte, nullptr, 2));
+            }
+        } else {
+            size_t pos = 0;
+            std::string token;
+            while ((pos = line.find(delimiter)) != std::string::npos) {
+                token = line.substr(0, pos);
+                outfile << static_cast<char>(std::stoi(token, nullptr, 2));
+                line.erase(0, pos + delimiter.length());
+            }
+            outfile << static_cast<char>(std::stoi(line, nullptr, 2));
+        }
+    }
+    outfile.close();
+    infile.close();
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_file = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_file = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter == "\\n") {
+        delimiter = "\n"; // treat \n as line ending
+    } else if (delimiter == "\\t") {
+        delimiter = "\t"; // treat \t as tab
+    }
+
+    if (!source_file.empty() && !destination_file.empty()) {
+        bool success = processFile(source_file, destination_file, delimiter);
+        return success ? 0 : 1;
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+        return 1;
+    }
+}
+```
+
+Now, if no delimiter is specified, the program will treat every 8 characters as a single binary number.
